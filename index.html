@@ -632,9 +632,12 @@
         });
 
         function showResult(data, formData) {
+            // ✨ ROLA PARA O TOPO
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            
             loadingContainer.classList.remove('active');
             resultContainer.classList.add('active');
-            
+                    
             const sku = formData["Código Amigável do Produto (SKU)"];
             const pedidoMinimo = formData["Pedido Mínimo (unidades)"];
             const promocao = formData["Promoção Progressiva"];
@@ -772,6 +775,9 @@
         }
 
         function showError(message) {
+            // ✨ ROLA PARA O TOPO
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            
             loadingContainer.classList.remove('active');
             resultContainer.classList.add('active');
             
