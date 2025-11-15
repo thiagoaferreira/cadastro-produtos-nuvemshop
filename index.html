@@ -461,8 +461,9 @@
     </div>
 
     <script>
-        // Configuração do webhook - ALTERE AQUI PARA SUA URL
+        // Configuração dos webhooks
         const WEBHOOK_URL = 'https://gama-laser-n8n.gtyipj.easypanel.host/webhook/cadastro-produto-nuvemshop';
+        const CATEGORIAS_URL = 'https://gama-laser-n8n.gtyipj.easypanel.host/webhook/buscar-categorias-nuvemshop';
         
         const form = document.getElementById('cadastroForm');
         const formContainer = document.getElementById('formContainer');
@@ -470,14 +471,61 @@
         const resultContainer = document.getElementById('resultContainer');
         const submitBtn = document.getElementById('submitBtn');
 
+        // Função para carregar categorias dinamicamente
+        async function carregarCategorias() {
+            const selectCategoria = document.getElementById('categoria');
+            selectCategoria.innerHTML = '<option value="">Carregando categorias...</option>';
+            
+            try {
+                const response = await fetch(CATEGORIAS_URL);
+                const categorias = await response.json();
+                
+                // Limpar e adicionar opção padrão
+                selectCategoria.innerHTML = '<option value="">Selecione uma categoria...</option>';
+                
+                // Adicionar categorias
+                categorias.forEach(cat => {
+                    const option = document.createElement('option');
+                    option.value = cat.id;
+                    option.textContent = cat.nome;
+                    selectCategoria.appendChild(option);
+                });
+                
+                console.log(`${categorias.length} categorias carregadas`);
+                
+            } catch (error) {
+                console.error('Erro ao carregar categorias:', error);
+                // Em caso de erro, usar categorias padrão
+                selectCategoria.innerHTML = `
+                    <option value="">Erro ao carregar - Usando padrão...</option>
+                    <option value="33897723">Chaveiro</option>
+                    <option value="33962792">Copos</option>
+                    <option value="33965181">Caneta</option>
+                    <option value="33970377">Caneta Premium</option>
+                    <option value="33971952">Utilidades</option>
+                    <option value="34333630">Garrafas</option>
+                    <option value="34333728">Kit Churrasco</option>
+                    <option value="34576456">Carregadores</option>
+                    <option value="35126289">Canecas</option>
+                `;
+            }
+        }
+
+        // Carregar categorias quando a página carregar
+        document.addEventListener('DOMContentLoaded', function() {
+            carregarCategorias();
+        });
+
         form.addEventListener('submit', async (e) => {
             e.preventDefault();
             
             // Coletar dados do formulário
+            const selectCategoria = document.getElementById('categoria');
+            const selectedOption = selectCategoria.options[selectCategoria.selectedIndex];
+            
             const formData = {
                 "Código Amigável do Produto (SKU)": document.getElementById('sku').value,
-                "Categoria do Produto": document.getElementById('categoria').value + ' - ' + 
-                    document.getElementById('categoria').options[document.getElementById('categoria').selectedIndex].text,
+                "Categoria do Produto": selectedOption.value + ' - ' + selectedOption.text,
                 "Markup (%)": parseFloat(document.getElementById('markup').value),
                 "Pedido Mínimo (unidades)": parseInt(document.getElementById('pedidoMinimo').value),
                 "Promoção Progressiva": document.getElementById('promocao').value === 'nenhuma' ? 
