@@ -1,0 +1,29 @@
+version: '3.8'
+
+services:
+  cadastro-nuvemshop:
+    build: .
+    image: gamalaser/cadastro-nuvemshop:latest
+    container_name: cadastro-produtos-nuvemshop
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    environment:
+      - TZ=America/Sao_Paulo
+    labels:
+      - "com.centurylinklabs.watchtower.enable=true"
+      - "traefik.enable=true"
+      - "traefik.http.routers.cadastro.rule=Host(`cadastro.gamalaser.com.br`)"
+      - "traefik.http.services.cadastro.loadbalancer.server.port=80"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost/"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+      start_period: 5s
+    networks:
+      - web
+
+networks:
+  web:
+    external: true
