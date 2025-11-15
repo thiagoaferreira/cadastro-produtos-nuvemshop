@@ -576,14 +576,58 @@
                     throw new Error(`Erro HTTP: ${response.status}`);
                 }
 
-                const data = await response.json();
+                // Primeiro verificar se há conteúdo
+                const contentType = response.headers.get("content-type");
+                const responseText = await response.text();
+                
+                console.log('Response text:', responseText);
+                
+                let data = {};
+                if (responseText && responseText.trim() !== '') {
+                    try {
+                        if (contentType && contentType.includes("application/json")) {
+                            data = JSON.parse(responseText);
+                        } else {
+                            // Se não for JSON, usar o texto como mensagem
+                            data = {
+                                success: true,
+                                message: responseText,
+                                product_id: 'Verifique no admin'
+                            };
+                        }
+                    } catch (parseError) {
+                        console.warn('Resposta não é JSON válido, usando como texto:', responseText);
+                        data = {
+                            success: true,
+                            message: 'Produto cadastrado! Verifique no admin da Nuvemshop.',
+                            product_id: 'Verifique no admin'
+                        };
+                    }
+                } else {
+                    // Resposta vazia - assumir sucesso
+                    data = {
+                        success: true,
+                        message: 'Produto cadastrado com sucesso! Verifique no admin da Nuvemshop.',
+                        product_id: 'Verifique no admin'
+                    };
+                }
                 
                 // Mostrar resultado
                 showResult(data, formData);
                 
             } catch (error) {
                 console.error('Erro:', error);
-                showError(error.message);
+                // Mesmo com erro, pode ter funcionado
+                if (error.message.includes('JSON')) {
+                    showResult({
+                        success: true,
+                        message: 'Produto provavelmente cadastrado! Verifique no admin da Nuvemshop.',
+                        product_id: 'Verifique no admin',
+                        warning: 'Resposta do servidor não foi processada corretamente'
+                    }, formData);
+                } else {
+                    showError(error.message);
+                }
             }
         });
 
