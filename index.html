@@ -436,9 +436,9 @@
                     <label for="promocao" class="required">Promoção Progressiva</label>
                     <select id="promocao" name="promocao" required>
                         <option value="nenhuma">Nenhuma</option>
-                        <option value="opcao1">Opção 1 - 20un=10% | 50un=15% | 100un=20%</option>
-                        <option value="opcao2">Opção 2 - 100un=5% | 200un=10% | 300un=15%</option>
-                        <option value="opcao3">Opção 3 - 150un=8% | 500un=12% | 1000un=18%</option>
+                        <option value="opcao1">Opção 1 - 20un=15% | 50un=30% | 100un=50%</option>
+                        <option value="opcao2">Opção 2 - 100un=15% | 200un=30% | 300un=50%</option>
+                        <option value="opcao3">Opção 3 - 150un=15% | 500un=30% | 1000un=50%</option>
                     </select>
                 </div>
 
@@ -646,41 +646,41 @@
             if (promocao.includes('Opção 1')) {
                 codigoDescontos = `"${sku}": [
     {min: 1, max: 19, desconto: 0},
-    {min: 20, max: 49, desconto: 0.10},
-    {min: 50, max: 99, desconto: 0.15},
-    {min: 100, max: Infinity, desconto: 0.20}
+    {min: 20, max: 49, desconto: 0.15},
+    {min: 50, max: 99, desconto: 0.30},
+    {min: 100, max: Infinity, desconto: 0.50}
 ]`;
                 faixasInfo = `
                     <p><span class="step-indicator">1</span> 1-19 unidades: Preço normal</p>
-                    <p><span class="step-indicator">2</span> 20-49 unidades: <span class="badge">10% OFF</span></p>
-                    <p><span class="step-indicator">3</span> 50-99 unidades: <span class="badge">15% OFF</span></p>
-                    <p><span class="step-indicator">4</span> 100+ unidades: <span class="badge">20% OFF</span></p>
+                    <p><span class="step-indicator">2</span> 20-49 unidades: <span class="badge">15% OFF</span></p>
+                    <p><span class="step-indicator">3</span> 50-99 unidades: <span class="badge">30% OFF</span></p>
+                    <p><span class="step-indicator">4</span> 100+ unidades: <span class="badge">50% OFF</span></p>
                 `;
             } else if (promocao.includes('Opção 2')) {
                 codigoDescontos = `"${sku}": [
     {min: 1, max: 99, desconto: 0},
-    {min: 100, max: 199, desconto: 0.05},
-    {min: 200, max: 299, desconto: 0.10},
-    {min: 300, max: Infinity, desconto: 0.15}
+    {min: 100, max: 199, desconto: 0.15},
+    {min: 200, max: 299, desconto: 0.30},
+    {min: 300, max: Infinity, desconto: 0.50}
 ]`;
                 faixasInfo = `
                     <p><span class="step-indicator">1</span> 1-99 unidades: Preço normal</p>
-                    <p><span class="step-indicator">2</span> 100-199 unidades: <span class="badge">5% OFF</span></p>
-                    <p><span class="step-indicator">3</span> 200-299 unidades: <span class="badge">10% OFF</span></p>
-                    <p><span class="step-indicator">4</span> 300+ unidades: <span class="badge">15% OFF</span></p>
+                    <p><span class="step-indicator">2</span> 100-199 unidades: <span class="badge">15% OFF</span></p>
+                    <p><span class="step-indicator">3</span> 200-299 unidades: <span class="badge">30% OFF</span></p>
+                    <p><span class="step-indicator">4</span> 300+ unidades: <span class="badge">50% OFF</span></p>
                 `;
             } else if (promocao.includes('Opção 3')) {
                 codigoDescontos = `"${sku}": [
     {min: 1, max: 149, desconto: 0},
-    {min: 150, max: 499, desconto: 0.08},
-    {min: 500, max: 999, desconto: 0.12},
-    {min: 1000, max: Infinity, desconto: 0.18}
+    {min: 150, max: 499, desconto: 0.15},
+    {min: 500, max: 999, desconto: 0.30},
+    {min: 1000, max: Infinity, desconto: 0.50}
 ]`;
                 faixasInfo = `
                     <p><span class="step-indicator">1</span> 1-149 unidades: Preço normal</p>
-                    <p><span class="step-indicator">2</span> 150-499 unidades: <span class="badge">8% OFF</span></p>
-                    <p><span class="step-indicator">3</span> 500-999 unidades: <span class="badge">12% OFF</span></p>
-                    <p><span class="step-indicator">4</span> 1000+ unidades: <span class="badge">18% OFF</span></p>
+                    <p><span class="step-indicator">2</span> 150-499 unidades: <span class="badge">15% OFF</span></p>
+                    <p><span class="step-indicator">3</span> 500-999 unidades: <span class="badge">30% OFF</span></p>
+                    <p><span class="step-indicator">4</span> 1000+ unidades: <span class="badge">50% OFF</span></p>
                 `;
             }
             
