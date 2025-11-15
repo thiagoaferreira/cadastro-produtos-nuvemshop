@@ -558,7 +558,7 @@
             };
             
             console.log('Enviando dados:', formData);
-
+        
             // Mostrar loading
             formContainer.style.display = 'none';
             loadingContainer.classList.add('active');
@@ -571,88 +571,78 @@
                     },
                     body: JSON.stringify(formData)
                 });
-
+        
+                // ✅ VERIFICAÇÃO 1: HTTP Status Code
                 if (!response.ok) {
-                    throw new Error(`Erro HTTP: ${response.status}`);
+                    throw new Error(`Erro HTTP ${response.status}: ${response.statusText}`);
                 }
-
-                // Primeiro verificar se há conteúdo
+        
+                // Tentar ler a resposta
                 const contentType = response.headers.get("content-type");
                 const responseText = await response.text();
                 
-                console.log('Response text:', responseText);
+                console.log('Response Status:', response.status);
+                console.log('Response Text:', responseText);
                 
-                let data = {};
-                if (responseText && responseText.trim() !== '') {
-                    try {
-                        if (contentType && contentType.includes("application/json")) {
-                            data = JSON.parse(responseText);
-                        } else {
-                            // Se não for JSON, usar o texto como mensagem
-                            data = {
-                                success: true,
-                                message: responseText,
-                                product_id: 'Verifique no admin'
-                            };
-                        }
-                    } catch (parseError) {
-                        console.warn('Resposta não é JSON válido, usando como texto:', responseText);
-                        data = {
-                            success: true,
-                            message: 'Produto cadastrado! Verifique no admin da Nuvemshop.',
-                            product_id: 'Verifique no admin'
-                        };
+                let data = null;
+                
+                // ✅ VERIFICAÇÃO 2: Parse do JSON
+                try {
+                    if (responseText && responseText.trim() !== '') {
+                        data = JSON.parse(responseText);
+                    } else {
+                        // Resposta vazia = erro
+                        throw new Error('Resposta vazia do servidor. O fluxo pode ter falhado.');
                     }
-                } else {
-                    // Resposta vazia - assumir sucesso
-                    data = {
-                        success: true,
-                        message: 'Produto cadastrado com sucesso! Verifique no admin da Nuvemshop.',
-                        product_id: 'Verifique no admin'
-                    };
+                } catch (parseError) {
+                    console.error('Erro ao fazer parse do JSON:', parseError);
+                    throw new Error('Resposta do servidor está em formato inválido. Verifique o fluxo no n8n.');
                 }
                 
-                // Mostrar resultado
+                // ✅ VERIFICAÇÃO 3: Campo success na resposta
+                if (data.success === false || data.error || data.errorMessage) {
+                    // Tem erro explícito na resposta
+                    const errorMsg = data.errorMessage || data.error || data.message || 'Erro desconhecido';
+                    throw new Error(errorMsg);
+                }
+                
+                // ✅ VERIFICAÇÃO 4: Tem product_id?
+                if (!data.product_id || data.product_id === 'Verifique no admin') {
+                    console.warn('⚠️ Produto criado mas sem ID retornado');
+                }
+                
+                // Se chegou aqui, é sucesso!
+                console.log('✅ Cadastro realizado com sucesso:', data);
                 showResult(data, formData);
                 
             } catch (error) {
-                console.error('Erro:', error);
-                // Mesmo com erro, pode ter funcionado
-                if (error.message.includes('JSON')) {
-                    showResult({
-                        success: true,
-                        message: 'Produto provavelmente cadastrado! Verifique no admin da Nuvemshop.',
-                        product_id: 'Verifique no admin',
-                        warning: 'Resposta do servidor não foi processada corretamente'
-                    }, formData);
-                } else {
-                    showError(error.message);
-                }
+                console.error('❌ Erro no cadastro:', error);
+                showError(error.message);
             }
         });
-
-        function showResult(data, formData) {
-            // ✨ ROLA PARA O TOPO
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-            
-            loadingContainer.classList.remove('active');
-            resultContainer.classList.add('active');
+        
+                function showResult(data, formData) {
+                    // ✨ ROLA PARA O TOPO
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
                     
-            const sku = formData["Código Amigável do Produto (SKU)"];
-            const pedidoMinimo = formData["Pedido Mínimo (unidades)"];
-            const promocao = formData["Promoção Progressiva"];
-            
-            // Gerar códigos baseado na promoção escolhida
-            let codigoDescontos = '';
-            let faixasInfo = '';
-            
-            if (promocao.includes('Opção 1')) {
-                codigoDescontos = `"${sku}": [
-    {min: 1, max: 19, desconto: 0},
-    {min: 20, max: 49, desconto: 0.15},
-    {min: 50, max: 99, desconto: 0.30},
-    {min: 100, max: Infinity, desconto: 0.50}
-]`;
+                    loadingContainer.classList.remove('active');
+                    resultContainer.classList.add('active');
+                            
+                    const sku = formData["Código Amigável do Produto (SKU)"];
+                    const pedidoMinimo = formData["Pedido Mínimo (unidades)"];
+                    const promocao = formData["Promoção Progressiva"];
+                    
+                    // Gerar códigos baseado na promoção escolhida
+                    let codigoDescontos = '';
+                    let faixasInfo = '';
+                    
+                    if (promocao.includes('Opção 1')) {
+                        codigoDescontos = `"${sku}": [
+            {min: 1, max: 19, desconto: 0},
+            {min: 20, max: 49, desconto: 0.15},
+            {min: 50, max: 99, desconto: 0.30},
+            {min: 100, max: Infinity, desconto: 0.50}
+        ]`;
                 faixasInfo = `
                     <p><span class="step-indicator">1</span> 1-19 unidades: Preço normal</p>
                     <p><span class="step-indicator">2</span> 20-49 unidades: <span class="badge">15% OFF</span></p>
