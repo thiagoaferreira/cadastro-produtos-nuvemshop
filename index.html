@@ -79,7 +79,7 @@
             color: #f58535;
         }
 
-        input, select {
+        input, select, textarea {
             width: 100%;
             padding: 12px 15px;
             border: 2px solid #e1e8ed;
@@ -90,7 +90,12 @@
             color: #000000;
         }
 
-        input:focus, select:focus {
+        textarea {
+            font-family: 'Courier New', monospace;
+            resize: vertical;
+        }
+
+        input:focus, select:focus, textarea:focus {
             outline: none;
             border-color: #f58535;
             box-shadow: 0 0 0 3px rgba(245, 133, 53, 0.1);
@@ -119,7 +124,7 @@
             color: #ffffff;
             border: none;
             border-radius: 10px;
-            font-size: 16;
+            font-size: 16px;
             font-weight: 600;
             cursor: pointer;
             transition: all 0.3s ease;
@@ -336,37 +341,18 @@
             margin-left: 5px;
         }
 
-        .step-indicator {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            width: 30px;
-            height: 30px;
-            background: #f58535;
-            color: #ffffff;
-            border-radius: 50%;
-            font-weight: bold;
-            margin-right: 10px;
-            flex-shrink: 0;
-        }
-
-        .instructions-list {
-            list-style: none;
-            padding: 0;
-        }
-
-        .instructions-list li {
-            display: flex;
-            align-items: flex-start;
-            margin-bottom: 15px;
-            padding: 10px;
+        .config-box {
             background: #f8f9fa;
-            border-radius: 8px;
-            transition: background 0.3s ease;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            border-left: 4px solid #f58535;
         }
 
-        .instructions-list li:hover {
-            background: #fff3e8;
+        .config-box h3 {
+            margin: 0 0 15px 0;
+            color: #000;
+            font-size: 16px;
         }
 
         @media (max-width: 600px) {
@@ -391,15 +377,22 @@
                  alt="Gama Laser" 
                  class="logo">
             <h1>Sistema de Cadastro de Produtos</h1>
-            <p>Integração automatizada com Nuvemshop via API</p>
+            <p>Cadastro em Lote - Integração com Nuvemshop via API</p>
         </div>
 
         <div class="form-container" id="formContainer">
             <form id="cadastroForm">
+                <!-- Campo de SKUs múltiplos -->
                 <div class="form-group">
-                    <label for="sku" class="required">Código Amigável do Produto (SKU)</label>
-                    <input type="text" id="sku" name="sku" placeholder="Ex: 14844 ou 06520" required>
-                    <div class="help-text">Digite o código XBZ (letras, números e hífen)</div>
+                    <label for="skus" class="required">Códigos dos Produtos (SKUs)</label>
+                    <textarea id="skus" 
+                              name="skus" 
+                              rows="6" 
+                              placeholder="Digite os SKUs (um por linha ou separados por vírgula)&#10;&#10;Exemplos:&#10;19006&#10;06076, 09105&#10;08159&#10;&#10;ou&#10;&#10;19006, 06076, 09105, 08159" 
+                              required></textarea>
+                    <div class="help-text">
+                        <span id="skuCount" style="color: #f58535; font-weight: 600;">0 SKUs</span> detectados
+                    </div>
                 </div>
 
                 <div class="form-group">
@@ -416,34 +409,38 @@
                         <option value="34576456">Carregadores</option>
                         <option value="35126289">Canecas</option>
                     </select>
+                    <div class="help-text">⚠️ Todos os produtos devem ser da mesma categoria</div>
                 </div>
 
-                <div class="two-columns">
-                    <div class="form-group">
-                        <label for="markup" class="required">Markup (%)</label>
-                        <input type="number" id="markup" name="markup" placeholder="233.33" value="233.33" step="0.01" required>
-                        <div class="help-text">Percentual de lucro sobre o custo</div>
+                <!-- Configurações Globais -->
+                <div class="config-box">
+                    <h3>⚙️ Configurações Globais (aplicadas a todos os produtos)</h3>
+                    
+                    <div class="two-columns">
+                        <div class="form-group" style="margin-bottom: 0;">
+                            <label for="markup" class="required">Markup (%)</label>
+                            <input type="number" id="markup" name="markup" placeholder="233.33" value="233.33" step="0.01" required>
+                        </div>
+
+                        <div class="form-group" style="margin-bottom: 0;">
+                            <label for="pedidoMinimo" class="required">Pedido Mínimo (unidades)</label>
+                            <input type="number" id="pedidoMinimo" name="pedidoMinimo" placeholder="10" value="10" min="1" required>
+                        </div>
                     </div>
 
-                    <div class="form-group">
-                        <label for="pedidoMinimo" class="required">Pedido Mínimo (unidades)</label>
-                        <input type="number" id="pedidoMinimo" name="pedidoMinimo" placeholder="10" value="10" min="1" required>
-                        <div class="help-text">Quantidade mínima para compra</div>
+                    <div class="form-group" style="margin-top: 20px; margin-bottom: 0;">
+                        <label for="promocao" class="required">Promoção Progressiva</label>
+                        <select id="promocao" name="promocao" required>
+                            <option value="nenhuma">Nenhuma</option>
+                            <option value="opcao1">Opção 1 - 20un=15% | 50un=30% | 100un=50%</option>
+                            <option value="opcao2">Opção 2 - 100un=15% | 200un=30% | 300un=50%</option>
+                            <option value="opcao3">Opção 3 - 150un=15% | 500un=30% | 1000un=50%</option>
+                        </select>
                     </div>
-                </div>
-
-                <div class="form-group">
-                    <label for="promocao" class="required">Promoção Progressiva</label>
-                    <select id="promocao" name="promocao" required>
-                        <option value="nenhuma">Nenhuma</option>
-                        <option value="opcao1">Opção 1 - 20un=15% | 50un=30% | 100un=50%</option>
-                        <option value="opcao2">Opção 2 - 100un=15% | 200un=30% | 300un=50%</option>
-                        <option value="opcao3">Opção 3 - 150un=15% | 500un=30% | 1000un=50%</option>
-                    </select>
                 </div>
 
                 <button type="submit" class="btn-submit" id="submitBtn">
-                    CADASTRAR PRODUTO
+                    CADASTRAR PRODUTOS EM LOTE
                 </button>
             </form>
         </div>
@@ -470,9 +467,25 @@
         const formContainer = document.getElementById('formContainer');
         const loadingContainer = document.getElementById('loadingContainer');
         const resultContainer = document.getElementById('resultContainer');
-        const submitBtn = document.getElementById('submitBtn');
+        const skusTextarea = document.getElementById('skus');
+        const skuCountSpan = document.getElementById('skuCount');
 
-        // Função para carregar categorias dinamicamente
+        // Atualizar contador de SKUs em tempo real
+        skusTextarea.addEventListener('input', function() {
+            const skus = extrairSKUs(this.value);
+            skuCountSpan.textContent = `${skus.length} SKU${skus.length !== 1 ? 's' : ''}`;
+            skuCountSpan.style.color = skus.length > 0 ? '#f58535' : '#6c757d';
+        });
+
+        // Função para extrair SKUs (aceita vírgula, espaço, quebra de linha)
+        function extrairSKUs(texto) {
+            return texto
+                .split(/[\n,;]+/) // Separa por vírgula, ponto-vírgula ou quebra de linha
+                .map(sku => sku.trim().toUpperCase())
+                .filter(sku => sku.length > 0); // Remove vazios
+        }
+
+        // Carregar categorias dinamicamente
         async function carregarCategorias() {
             const selectCategoria = document.getElementById('categoria');
             selectCategoria.innerHTML = '<option value="">Carregando categorias...</option>';
@@ -492,15 +505,12 @@
                 
                 const categorias = await response.json();
                 
-                // Verificar se é um array
                 if (!Array.isArray(categorias)) {
                     throw new Error('Formato de resposta inválido');
                 }
                 
-                // Limpar e adicionar opção padrão
                 selectCategoria.innerHTML = '<option value="">Selecione uma categoria...</option>';
                 
-                // Adicionar categorias
                 categorias.forEach(cat => {
                     const option = document.createElement('option');
                     option.value = cat.id;
@@ -513,7 +523,6 @@
             } catch (error) {
                 console.error('Erro ao carregar categorias:', error);
                 
-                // Em caso de erro, usar categorias padrão
                 selectCategoria.innerHTML = `
                     <option value="">Selecione uma categoria...</option>
                     <option value="33897723">Chaveiro</option>
@@ -529,256 +538,241 @@
             }
         }
 
-        // Carregar categorias quando a página carregar
         document.addEventListener('DOMContentLoaded', function() {
             carregarCategorias();
         });
 
+        // Submissão do formulário
         form.addEventListener('submit', async (e) => {
             e.preventDefault();
             
-            // Coletar dados do formulário
+            const skus = extrairSKUs(skusTextarea.value);
+            
+            if (skus.length === 0) {
+                alert('⚠️ Por favor, adicione pelo menos um SKU');
+                return;
+            }
+
             const selectCategoria = document.getElementById('categoria');
             const selectedOption = selectCategoria.options[selectCategoria.selectedIndex];
             
-            // Montar categoria no formato esperado pelo n8n
             let categoriaFormatada = '';
             if (selectedOption && selectedOption.value) {
                 categoriaFormatada = selectedOption.value + ' - ' + selectedOption.text;
             }
             
-            const formData = {
-                "Código Amigável do Produto (SKU)": document.getElementById('sku').value,
-                "Categoria do Produto": categoriaFormatada,
-                "Markup (%)": parseFloat(document.getElementById('markup').value),
-                "Pedido Mínimo (unidades)": parseInt(document.getElementById('pedidoMinimo').value),
-                "Promoção Progressiva": document.getElementById('promocao').value === 'nenhuma' ? 
-                    'Nenhuma' : 
-                    document.getElementById('promocao').options[document.getElementById('promocao').selectedIndex].text
-            };
+            const promocao = document.getElementById('promocao').value;
+            const promocaoTexto = promocao === 'nenhuma' ? 
+                'Nenhuma' : 
+                document.getElementById('promocao').options[document.getElementById('promocao').selectedIndex].text;
             
-            console.log('Enviando dados:', formData);
-        
-            // Mostrar loading
+            // Atualizar texto do loading
+            document.querySelector('.loading-text').textContent = `Processando ${skus.length} produto${skus.length > 1 ? 's' : ''}...`;
+            document.querySelector('.loading-subtext').textContent = 
+                `Gerando SEO, criando variantes e sincronizando cada produto com Nuvemshop`;
+
             formContainer.style.display = 'none';
             loadingContainer.classList.add('active');
             
-            try {
-                const response = await fetch(WEBHOOK_URL, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(formData)
-                });
-        
-                // ✅ VERIFICAÇÃO 1: HTTP Status Code
-                if (!response.ok) {
-                    throw new Error(`Erro HTTP ${response.status}: ${response.statusText}`);
-                }
-        
-                // Tentar ler a resposta
-                const contentType = response.headers.get("content-type");
-                const responseText = await response.text();
+            // Array para armazenar resultados
+            let resultados = [];
+            let sucessos = 0;
+            let erros = 0;
+            
+            // Processar cada SKU individualmente
+            for (let i = 0; i < skus.length; i++) {
+                const sku = skus[i];
                 
-                console.log('Response Status:', response.status);
-                console.log('Response Text:', responseText);
+                console.log(`📦 Processando ${i + 1}/${skus.length}: SKU ${sku}`);
                 
-                let data = null;
+                const formData = {
+                    "Código Amigável do Produto (SKU)": sku,
+                    "Categoria do Produto": categoriaFormatada,
+                    "Markup (%)": parseFloat(document.getElementById('markup').value),
+                    "Pedido Mínimo (unidades)": parseInt(document.getElementById('pedidoMinimo').value),
+                    "Promoção Progressiva": promocaoTexto
+                };
                 
-                // ✅ VERIFICAÇÃO 2: Parse do JSON
                 try {
-                    if (responseText && responseText.trim() !== '') {
-                        data = JSON.parse(responseText);
-                    } else {
-                        // Resposta vazia = erro
-                        throw new Error('Resposta vazia do servidor. O fluxo pode ter falhado.');
-                    }
-                } catch (parseError) {
-                    console.error('Erro ao fazer parse do JSON:', parseError);
-                    throw new Error('Resposta do servidor está em formato inválido. Verifique o fluxo no n8n.');
-                }
-                
-                // ✅ VERIFICAÇÃO 3: Campo success na resposta
-                if (data.success === false || data.error || data.errorMessage) {
-                    // Tem erro explícito na resposta
-                    const errorMsg = data.errorMessage || data.error || data.message || 'Erro desconhecido';
-                    throw new Error(errorMsg);
-                }
-                
-                // ✅ VERIFICAÇÃO 4: Tem product_id?
-                if (!data.product_id || data.product_id === 'Verifique no admin') {
-                    console.warn('⚠️ Produto criado mas sem ID retornado');
-                }
-                
-                // Se chegou aqui, é sucesso!
-                console.log('✅ Cadastro realizado com sucesso:', data);
-                showResult(data, formData);
-                
-            } catch (error) {
-                console.error('❌ Erro no cadastro:', error);
-                showError(error.message);
-            }
-        });
-        
-                function showResult(data, formData) {
-                    // ✨ ROLA PARA O TOPO
-                    window.scrollTo({ top: 0, behavior: 'smooth' });
-                    
-                    loadingContainer.classList.remove('active');
-                    resultContainer.classList.add('active');
-                            
-                    const sku = formData["Código Amigável do Produto (SKU)"];
-                    const pedidoMinimo = formData["Pedido Mínimo (unidades)"];
-                    const promocao = formData["Promoção Progressiva"];
-                    
-                    // Gerar códigos baseado na promoção escolhida
-                    let codigoDescontos = '';
-                    let faixasInfo = '';
-                    
-                    if (promocao.includes('Opção 1')) {
-                        codigoDescontos = `"${sku}": [
-            {min: 1, max: 19, desconto: 0},
-            {min: 20, max: 49, desconto: 0.15},
-            {min: 50, max: 99, desconto: 0.30},
-            {min: 100, max: Infinity, desconto: 0.50}
-        ]`;
-                faixasInfo = `
-                    <p><span class="step-indicator">1</span> 1-19 unidades: Preço normal</p>
-                    <p><span class="step-indicator">2</span> 20-49 unidades: <span class="badge">15% OFF</span></p>
-                    <p><span class="step-indicator">3</span> 50-99 unidades: <span class="badge">30% OFF</span></p>
-                    <p><span class="step-indicator">4</span> 100+ unidades: <span class="badge">50% OFF</span></p>
-                `;
-            } else if (promocao.includes('Opção 2')) {
-                codigoDescontos = `"${sku}": [
-    {min: 1, max: 99, desconto: 0},
-    {min: 100, max: 199, desconto: 0.15},
-    {min: 200, max: 299, desconto: 0.30},
-    {min: 300, max: Infinity, desconto: 0.50}
-]`;
-                faixasInfo = `
-                    <p><span class="step-indicator">1</span> 1-99 unidades: Preço normal</p>
-                    <p><span class="step-indicator">2</span> 100-199 unidades: <span class="badge">15% OFF</span></p>
-                    <p><span class="step-indicator">3</span> 200-299 unidades: <span class="badge">30% OFF</span></p>
-                    <p><span class="step-indicator">4</span> 300+ unidades: <span class="badge">50% OFF</span></p>
-                `;
-            } else if (promocao.includes('Opção 3')) {
-                codigoDescontos = `"${sku}": [
-    {min: 1, max: 149, desconto: 0},
-    {min: 150, max: 499, desconto: 0.15},
-    {min: 500, max: 999, desconto: 0.30},
-    {min: 1000, max: Infinity, desconto: 0.50}
-]`;
-                faixasInfo = `
-                    <p><span class="step-indicator">1</span> 1-149 unidades: Preço normal</p>
-                    <p><span class="step-indicator">2</span> 150-499 unidades: <span class="badge">15% OFF</span></p>
-                    <p><span class="step-indicator">3</span> 500-999 unidades: <span class="badge">30% OFF</span></p>
-                    <p><span class="step-indicator">4</span> 1000+ unidades: <span class="badge">50% OFF</span></p>
-                `;
-            }
-            
-            const codigoPedidoMinimo = `"${sku}": ${pedidoMinimo}`;
-            
-            let html = `
-                <div class="success-message">
-                    <h2>✅ Produto Cadastrado com Sucesso!</h2>
-                    <p>SKU ${sku} foi adicionado à Nuvemshop</p>
-                </div>
-                
-                <div class="result-section">
-                    <h3>📦 Informações do Produto</h3>
-                    <div class="result-details">
-                        <p><strong>SKU:</strong> ${sku}</p>
-                        <p><strong>ID Nuvemshop:</strong> ${data.product_id || 'Processando...'}</p>
-                        <p><strong>Pedido Mínimo:</strong> ${pedidoMinimo} unidades</p>
-                        ${data.url ? `<p><strong>Link Admin:</strong> <a href="${data.url}" target="_blank">Acessar produto na Nuvemshop →</a></p>` : ''}
-                    </div>
-                </div>
-            `;
-            
-            if (promocao !== 'Nenhuma') {
-                html += `
-                    <div class="result-section">
-                        <h3>📊 Faixas de Desconto Configuradas</h3>
-                        <div class="result-details">
-                            ${faixasInfo}
-                        </div>
-                    </div>
-                    
-                    <div class="result-section">
-                        <h3>⚙️ Código para Adicionar na Página</h3>
-                        
-                        <p style="margin-bottom: 10px;"><strong>1. Código de Descontos Progressivos:</strong></p>
-                        <div class="code-block" id="codeDescontos">
-                            <button class="copy-btn" onclick="copyCode('codeDescontos')">COPIAR</button>
-                            <pre>${codigoDescontos}</pre>
-                        </div>
-                        
-                        <p style="margin-bottom: 10px; margin-top: 20px;"><strong>2. Código de Pedido Mínimo:</strong></p>
-                        <div class="code-block" id="codePedidoMinimo">
-                            <button class="copy-btn" onclick="copyCode('codePedidoMinimo')">COPIAR</button>
-                            <pre>${codigoPedidoMinimo}</pre>
-                        </div>
-                    </div>
-                    
-                    <div class="result-section">
-                        <h3>📝 Próximos Passos</h3>
-                        <ul class="instructions-list">
-                            <li>
-                                <span class="step-indicator">1</span>
-                                <div>
-                                    <strong>Configurar Promoção no Admin</strong><br>
-                                    Acesse: Admin Nuvemshop > Marketing > Promoções
-                                </div>
-                            </li>
-                            <li>
-                                <span class="step-indicator">2</span>
-                                <div>
-                                    <strong>Criar Nova Promoção</strong><br>
-                                    Escolha "Desconto Progressivo por Quantidade"
-                                </div>
-                            </li>
-                            <li>
-                                <span class="step-indicator">3</span>
-                                <div>
-                                    <strong>Configurar Faixas</strong><br>
-                                    Use as faixas mostradas acima
-                                </div>
-                            </li>
-                            <li>
-                                <span class="step-indicator">4</span>
-                                <div>
-                                    <strong>Adicionar Códigos JavaScript</strong><br>
-                                    Cole os códigos gerados nos arquivos da loja
-                                </div>
-                            </li>
-                        </ul>
-                    </div>
-                `;
-            }
-            
-            html += `
-                <button class="reset-btn" onclick="resetForm()">CADASTRAR NOVO PRODUTO</button>
-            `;
-            
-            resultContainer.innerHTML = html;
-        }
+                    const response = await fetch(WEBHOOK_URL, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(formData)
+                    });
 
-        function showError(message) {
-            // ✨ ROLA PARA O TOPO
+                    if (!response.ok) {
+                        throw new Error(`Erro HTTP ${response.status}`);
+                    }
+
+                    const responseText = await response.text();
+                    let data = null;
+                    
+                    try {
+                        if (responseText && responseText.trim() !== '') {
+                            data = JSON.parse(responseText);
+                        } else {
+                            throw new Error('Resposta vazia');
+                        }
+                    } catch (parseError) {
+                        throw new Error('Resposta inválida');
+                    }
+                    
+                    if (data.success === false || data.error || data.errorMessage) {
+                        throw new Error(data.errorMessage || data.error || 'Erro desconhecido');
+                    }
+                    
+                    // Sucesso
+                    resultados.push({
+                        sku: sku,
+                        success: true,
+                        product_id: data.product_id || 'N/A'
+                    });
+                    sucessos++;
+                    
+                    console.log(`✅ SKU ${sku} cadastrado com sucesso`);
+                    
+                } catch (error) {
+                    // Erro
+                    resultados.push({
+                        sku: sku,
+                        success: false,
+                        error: error.message
+                    });
+                    erros++;
+                    
+                    console.error(`❌ Erro no SKU ${sku}:`, error.message);
+                }
+                
+                // Pequeno delay entre requisições para não sobrecarregar
+                if (i < skus.length - 1) {
+                    await new Promise(resolve => setTimeout(resolve, 500));
+                }
+            }
+            
+            // Mostrar resultado consolidado
+            showResultLote(resultados, {
+                promocao: promocaoTexto,
+                pedidoMinimo: parseInt(document.getElementById('pedidoMinimo').value),
+                sucessos: sucessos,
+                erros: erros
+            });
+        });
+
+        // Mostrar resultado em lote
+        function showResultLote(produtos, config) {
             window.scrollTo({ top: 0, behavior: 'smooth' });
             
             loadingContainer.classList.remove('active');
             resultContainer.classList.add('active');
             
-            resultContainer.innerHTML = `
-                <div class="error-message">
-                    <h2>❌ Erro ao Cadastrar Produto</h2>
-                    <p><strong>Mensagem:</strong> ${message}</p>
-                    <p style="margin-top: 10px;">Verifique se o SKU existe no banco XBZ e tente novamente.</p>
+            const promocao = config.promocao;
+            const pedidoMinimo = config.pedidoMinimo;
+            
+            let codigosDescontosConsolidados = [];
+            let codigosPedidoMinimoConsolidados = [];
+            
+            // Gerar códigos para cada produto bem-sucedido
+            produtos.forEach(produto => {
+                if (produto.success) {
+                    const sku = produto.sku;
+                    
+                    // Código de desconto
+                    if (promocao !== 'Nenhuma') {
+                        let codigoDesconto = gerarCodigoDesconto(sku, promocao);
+                        codigosDescontosConsolidados.push(codigoDesconto);
+                    }
+                    
+                    // Código de pedido mínimo
+                    codigosPedidoMinimoConsolidados.push(`"${sku}": ${pedidoMinimo}`);
+                }
+            });
+            
+            let html = `
+                <div class="success-message">
+                    <h2>✅ Cadastro em Lote Concluído!</h2>
+                    <p>${config.sucessos} produto${config.sucessos !== 1 ? 's' : ''} cadastrado${config.sucessos !== 1 ? 's' : ''} com sucesso</p>
+                    ${config.erros > 0 ? `<p style="color: #fff; margin-top: 10px;">⚠️ ${config.erros} produto${config.erros !== 1 ? 's' : ''} com erro</p>` : ''}
                 </div>
-                <button class="reset-btn" onclick="resetForm()">TENTAR NOVAMENTE</button>
             `;
+            
+            // Lista de produtos
+            html += `
+                <div class="result-section">
+                    <h3>📦 Produtos Processados (${produtos.length})</h3>
+                    <div class="result-details">
+            `;
+            
+            produtos.forEach((produto, index) => {
+                const statusIcon = produto.success ? '✅' : '❌';
+                const statusColor = produto.success ? '#28a745' : '#dc3545';
+                
+                html += `
+                    <div style="padding: 10px; margin: 5px 0; border-left: 3px solid ${statusColor}; background: #f8f9fa; border-radius: 5px;">
+                        <strong>${statusIcon} SKU: ${produto.sku}</strong>
+                        ${produto.success ? 
+                            `<br><span style="font-size: 13px; color: #6c757d;">ID Nuvemshop: ${produto.product_id}</span>` :
+                            `<br><span style="font-size: 13px; color: #dc3545;">Erro: ${produto.error}</span>`
+                        }
+                    </div>
+                `;
+            });
+            
+            html += `
+                    </div>
+                </div>
+            `;
+            
+            // Códigos consolidados
+            if (codigosDescontosConsolidados.length > 0) {
+                html += `
+                    <div class="result-section">
+                        <h3>⚙️ Códigos JavaScript Consolidados</h3>
+                        
+                        <p style="margin-bottom: 10px;"><strong>1. Código de Descontos Progressivos:</strong></p>
+                        <div class="code-block" id="codeDescontosLote">
+                            <button class="copy-btn" onclick="copyCode('codeDescontosLote')">COPIAR</button>
+                            <pre>${codigosDescontosConsolidados.join(',\n')}</pre>
+                        </div>
+                        
+                        <p style="margin-bottom: 10px; margin-top: 20px;"><strong>2. Código de Pedidos Mínimos:</strong></p>
+                        <div class="code-block" id="codePedidoMinimoLote">
+                            <button class="copy-btn" onclick="copyCode('codePedidoMinimoLote')">COPIAR</button>
+                            <pre>${codigosPedidoMinimoConsolidados.join(',\n')}</pre>
+                        </div>
+                    </div>
+                `;
+            }
+            
+            html += `<button class="reset-btn" onclick="resetForm()">CADASTRAR NOVOS PRODUTOS</button>`;
+            
+            resultContainer.innerHTML = html;
+        }
+
+        // Gerar código de desconto baseado na promoção
+        function gerarCodigoDesconto(sku, promocao) {
+            if (promocao.includes('Opção 1')) {
+                return `"${sku}": [
+    {min: 1, max: 19, desconto: 0},
+    {min: 20, max: 49, desconto: 0.15},
+    {min: 50, max: 99, desconto: 0.30},
+    {min: 100, max: Infinity, desconto: 0.50}
+]`;
+            } else if (promocao.includes('Opção 2')) {
+                return `"${sku}": [
+    {min: 1, max: 99, desconto: 0},
+    {min: 100, max: 199, desconto: 0.15},
+    {min: 200, max: 299, desconto: 0.30},
+    {min: 300, max: Infinity, desconto: 0.50}
+]`;
+            } else if (promocao.includes('Opção 3')) {
+                return `"${sku}": [
+    {min: 1, max: 149, desconto: 0},
+    {min: 150, max: 499, desconto: 0.15},
+    {min: 500, max: 999, desconto: 0.30},
+    {min: 1000, max: Infinity, desconto: 0.50}
+]`;
+            }
+            return '';
         }
 
         function copyCode(elementId) {
@@ -799,18 +793,12 @@
 
         function resetForm() {
             form.reset();
+            skuCountSpan.textContent = '0 SKUs';
+            skuCountSpan.style.color = '#6c757d';
             formContainer.style.display = 'block';
             resultContainer.classList.remove('active');
             resultContainer.innerHTML = '';
         }
-
-        // Adicionar validação de SKU
-        document.getElementById('sku').addEventListener('input', function(e) {
-            // Aceita letras, números e hífen (remove espaços e caracteres especiais)
-            e.target.value = e.target.value
-                .toUpperCase() // Converte para maiúsculas
-                .replace(/[^A-Z0-9-]/g, ''); // Só permite letras, números e hífen
-        });
     </script>
 </body>
 </html>
