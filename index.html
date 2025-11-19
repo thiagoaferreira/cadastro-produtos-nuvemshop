@@ -806,8 +806,10 @@
 
         // Adicionar validação de SKU
         document.getElementById('sku').addEventListener('input', function(e) {
-            // Remove caracteres não numéricos
-            e.target.value = e.target.value.replace(/[^0-9]/g, '');
+            // Aceita letras, números e hífen (remove espaços e caracteres especiais)
+            e.target.value = e.target.value
+                .toUpperCase() // Converte para maiúsculas
+                .replace(/[^A-Z0-9-]/g, ''); // Só permite letras, números e hífen
         });
     </script>
 </body>
